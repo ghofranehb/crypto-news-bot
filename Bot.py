@@ -2,6 +2,8 @@ import asyncio
 import requests
 import logging
 from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+from aiogram.types import Message
 
 BOT_TOKEN = "7615366315:AAGhaD_NM-7qzsnGClLsf7CGPA9p1bUhrSA"
 CHANNEL_USERNAME = "@Hodl_house_news"
@@ -28,6 +30,9 @@ def get_crypto_news():
 
 async def send_news():
     articles = get_crypto_news()
+    if not articles:
+        return  # Do nothing if no news
+
     for article in articles:
         title = article.get("title", "No title")
         url = article.get("url", "#")
@@ -35,8 +40,8 @@ async def send_news():
         await bot.send_message(CHANNEL_USERNAME, news_text, parse_mode="Markdown")
         await asyncio.sleep(5)  
 
-@dp.message(commands=['news'])
-async def send_news_command(message: types.Message):
+@dp.message(Command("news"))
+async def send_news_command(message: Message):
     await send_news()
 
 async def send_news_periodically():
@@ -45,7 +50,7 @@ async def send_news_periodically():
         await asyncio.sleep(3600)  
 
 async def main():
-    dp.include_router(dp.router)
+    dp.include_router(dp)  # Fix router issue
     asyncio.create_task(send_news_periodically())  
     await dp.start_polling(bot)
 
