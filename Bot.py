@@ -4,6 +4,16 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import Message
 import aiohttp
+from aiohttp import web
+
+# Add at the end of main()
+async def web_server():
+    app = web.Application()
+    return app
+
+if __name__ == "__main__":
+    # Add port binding
+    web.run_app(web_server(), port=int(os.environ.get("PORT", 10000)))
 
 # Configuration (TEMPORARY TESTING ONLY)
 BOT_TOKEN = "7615366315:AAGhaD_NM-7qzsnGClLsf7CGPA9p1bUhrSA"
