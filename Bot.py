@@ -12,13 +12,28 @@ dp = Dispatcher()
 router = Router()
 
 def get_crypto_news():
-    url = "https://api.coingecko.com/api/v3/news"
-    response = requests.get(url).json()
-    articles = response.get("data", [])[:3]  
-    news_text = ""
-    for article in articles:
-        news_text += f"🔹 *{article['title']}*\n🔗 [Read More]({article['url']})\n\n"
-    return news_text if news_text else "No news available now."
+    url = "https://cryptopanic.com/api/v1/posts/?auth_token=989061952399bf3c79f6970617e153e6fcb646cc&public=true"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  
+        data = response.json()
+
+        if "results" not in data or len(data["results"]) == 0:
+            return "⚠ No crypto news available at the moment."
+
+        articles = data["results"][:3]  
+        news_text = ""
+        for article in articles:
+            title = article.get("title", "No title")
+            url = article.get("url", "#")
+            news_text += f"🔹 *{title}*\n🔗 [Read More]({url})\n\n"
+
+        return news_text
+
+    except requests.exceptions.RequestException as e:
+        return f"⚠ Error fetching news: {str(e)}"
+
 
 @router.message(Command("news"))  
 async def send_news(message: types.Message):
